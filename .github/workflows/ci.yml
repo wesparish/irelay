@@ -56,19 +56,28 @@ jobs:
               'message': f'{pct:.0f}%',
               'color': color,
           }
-          with open('badges/coverage.json', 'w') as f:
+          with open('/tmp/coverage.json', 'w') as f:
               json.dump(badge, f, indent=2)
               f.write('\n')
           print(f'Coverage: {pct:.1f}%')
           EOF
 
-      - name: Commit coverage badge
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - name: Push coverage badge to badges branch
+        if: |
+          github.event_name == 'push' && (
+            github.ref == 'refs/heads/main' ||
+            startsWith(github.ref, 'refs/heads/feat-') ||
+            startsWith(github.ref, 'refs/heads/fix-')
+          )
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add badges/coverage.json
-          git diff --staged --quiet || (git commit -m "chore: update coverage badge [skip ci]" && git push)
+          git fetch origin badges
+          git checkout badges
+          cp /tmp/coverage.json coverage.json
+          git add coverage.json
+          git diff --staged --quiet || (git commit -m "chore: update coverage badge [skip ci]" && git push origin badges)
+          git checkout -
 
   build:
     runs-on: ubuntu-latest
@@ -104,6 +113,7 @@ jobs:
         with:
           name: firmware-${{ matrix.env }}
           path: .pio/build/${{ matrix.env }}/firmware.bin
+          retention-days: 1
 
   release:
     needs: [test, build]
