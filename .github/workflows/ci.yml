@@ -107,7 +107,12 @@ jobs:
 
   release:
     needs: [test, build]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: |
+      github.event_name == 'push' && (
+        github.ref == 'refs/heads/main' ||
+        startsWith(github.ref, 'refs/heads/feat-') ||
+        startsWith(github.ref, 'refs/heads/fix-')
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
