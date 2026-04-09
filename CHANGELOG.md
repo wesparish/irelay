@@ -1,3 +1,13 @@
+## 1.0.0 (2026-04-09)
+
+### Features
+
+* initial firmware, docs, CI/CD, and unit tests ([#1](https://github.com/wesparish/esp8285-wireless-ir-extender/issues/1)) ([12a8990](https://github.com/wesparish/esp8285-wireless-ir-extender/commit/12a8990074c9c031189c4f2c3c69915a2a5ebae9))
+
+### Bug Fixes
+
+* **ci:** fix CI/coverage badges and move badge to orphan branch ([#3](https://github.com/wesparish/esp8285-wireless-ir-extender/issues/3)) ([23574ab](https://github.com/wesparish/esp8285-wireless-ir-extender/commit/23574abdc96957bc3c9cd81ab884fe5cf7a3f04a))
+
 ## 1.0.0-fix-ci-badges.1 (2026-04-09)
 
 ### Features
