@@ -42,11 +42,10 @@ void setup() {
 void loop() {
     if (!irRecv.decode(&irResult)) return;
 
-    IrPayload payload = {
-        .protocol = static_cast<uint32_t>(irResult.decode_type),
-        .bits     = irResult.bits,
-        .value    = irResult.value,
-    };
+    IrPayload payload = {};  // zero-init clears padding bytes before wire transmission
+    payload.protocol = static_cast<uint32_t>(irResult.decode_type);
+    payload.bits     = irResult.bits;
+    payload.value    = irResult.value;
 
     esp_now_send(peerMac, reinterpret_cast<uint8_t*>(&payload), sizeof(payload));
     irRecv.resume();
@@ -69,11 +68,11 @@ void setup() {
     WiFi.mode(WIFI_STA);
     wifi_set_channel(ESPNOW_CHANNEL);
 
+    irSend.begin();  // initialize before registering callback to avoid send on uninitialized IRsend
+
     esp_now_init();
     esp_now_set_self_role(ESP_NOW_ROLE_SLAVE);
     esp_now_register_recv_cb(onReceive);
-
-    irSend.begin();
     Serial.println("server-node ready");
 }
 

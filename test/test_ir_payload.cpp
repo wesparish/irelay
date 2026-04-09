@@ -13,10 +13,9 @@ void test_sizeof_is_16(void) {
 }
 
 void test_field_offsets(void) {
-    IrPayload p;
-    TEST_ASSERT_EQUAL(0u,  (size_t)&p.protocol - (size_t)&p);
-    TEST_ASSERT_EQUAL(4u,  (size_t)&p.bits     - (size_t)&p);
-    TEST_ASSERT_EQUAL(8u,  (size_t)&p.value    - (size_t)&p);
+    TEST_ASSERT_EQUAL(0u, offsetof(IrPayload, protocol));
+    TEST_ASSERT_EQUAL(4u, offsetof(IrPayload, bits));
+    TEST_ASSERT_EQUAL(8u, offsetof(IrPayload, value));
 }
 
 // ── ir_payload_decode: length guard ─────────────────────────────────────────
