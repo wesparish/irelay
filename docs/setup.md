@@ -42,9 +42,9 @@ To list connected serial ports:
 pio device list
 ```
 
-## Step 2 — Configure each node
+## Step 2 — Configure
 
-Each node needs its own `include/config.h`. The file is gitignored so you'll create it locally:
+One `include/config.h` covers both nodes. Create it from the example:
 
 ```bash
 cp include/config.h.example include/config.h
@@ -53,15 +53,16 @@ cp include/config.h.example include/config.h
 Edit `include/config.h` and set:
 
 - `ESPNOW_CHANNEL` — any channel 1–13; both nodes must use the **same** value
-- `PEER_MAC_INIT` — the MAC address of the **other** node
+- `MEDIA_NODE_MAC` — the MAC of the media-node (from step 1)
+- `SERVER_NODE_MAC` — the MAC of the server-node (from step 1)
 
-Example for the media-node (the one in your media room):
 ```c
-#define ESPNOW_CHANNEL 1
-#define PEER_MAC_INIT  {0x5C, 0xCF, 0x7F, 0x12, 0x34, 0x56}  // server-node's MAC
+#define ESPNOW_CHANNEL  1
+#define MEDIA_NODE_MAC  {0x5C, 0xCF, 0x7F, 0x12, 0x34, 0x56}
+#define SERVER_NODE_MAC {0x5C, 0xCF, 0x7F, 0xAB, 0xCD, 0xEF}
 ```
 
-Then build and flash the media-node, swap to the server-node's config (update `PEER_MAC_INIT` to the media-node's MAC), and flash that one.
+The firmware picks the correct peer MAC at compile time based on which role is being built — no need to edit config between flashes.
 
 ## Step 3 — Flash each node
 

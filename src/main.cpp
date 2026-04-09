@@ -23,7 +23,7 @@
 
 IRrecv irRecv(IR_RECV_PIN);
 decode_results irResult;
-static uint8_t peerMac[] = PEER_MAC_INIT;
+static uint8_t peerMac[] = SERVER_NODE_MAC;
 
 void setup() {
     Serial.begin(115200);

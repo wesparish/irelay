@@ -29,7 +29,7 @@ Note the MAC for each device.
 cp include/config.h.example include/config.h
 ```
 
-Edit `include/config.h` — set `ESPNOW_CHANNEL` (any 1–13, same on both nodes) and `PEER_MAC_INIT` to the **other** node's MAC.
+Edit `include/config.h` — set `ESPNOW_CHANNEL` (any 1–13, same on both nodes), `MEDIA_NODE_MAC`, and `SERVER_NODE_MAC`. The firmware selects the correct peer at compile time; one config file covers both flashes.
 
 ### 3. Flash
 

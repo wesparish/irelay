@@ -35,7 +35,7 @@ fi
 # Warn if the example placeholder MAC is still in place
 if grep -q "0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF" "$CONFIG"; then
     echo "Error: $CONFIG still contains the placeholder MAC address." >&2
-    echo "Run ./bin/get-mac on the peer device, then update PEER_MAC_INIT in $CONFIG." >&2
+    echo "Run ./bin/get-mac on each device, then set MEDIA_NODE_MAC and SERVER_NODE_MAC in $CONFIG." >&2
     exit 1
 fi
 

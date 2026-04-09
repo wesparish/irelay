@@ -1,8 +1,9 @@
-name: Release
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
+  pull_request:
 
 permissions:
   contents: write
@@ -10,12 +11,34 @@ permissions:
   pull-requests: write
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio-${{ hashFiles('platformio.ini') }}
+          restore-keys: ${{ runner.os }}-pio-
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+
+      - name: Run unit tests
+        run: pio test -e native
+
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         env: [media-node, server-node]
-
     steps:
       - uses: actions/checkout@v4
 
@@ -40,20 +63,16 @@ jobs:
       - name: Build ${{ matrix.env }}
         run: pio run -e ${{ matrix.env }}
 
-      - name: Stage firmware for release
-        run: |
-          mkdir -p dist
-          cp .pio/build/${{ matrix.env }}/firmware.bin dist/firmware-${{ matrix.env }}.bin
-
-      - uses: actions/upload-artifact@v4
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
         with:
           name: firmware-${{ matrix.env }}
-          path: dist/firmware-${{ matrix.env }}.bin
+          path: .pio/build/${{ matrix.env }}/firmware.bin
 
   release:
-    needs: build
+    needs: [test, build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,7 +87,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: dist
-          merge-multiple: true
+          pattern: firmware-*
+
+      - name: Flatten artifacts for release
+        run: for d in dist/firmware-*; do mv "$d/firmware.bin" "${d}.bin"; done
 
       - name: Install semantic-release
         run: |

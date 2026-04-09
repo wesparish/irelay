@@ -26,7 +26,7 @@ pio run                               # build all environments
 pio run -e media-node                 # build one environment
 pio run -e get-mac --target upload    # flash MAC utility (what bin/get-mac wraps)
 pio run --target clean
-pio test -e native                    # host-side unit tests
+pio test -e native                    # host-side unit tests (run after any changes to src/, include/, or test/)
 pio device list                       # list available serial ports
 ```
 
@@ -63,8 +63,7 @@ include/       Headers; config.h (gitignored), config.h.example (committed)
 test/          PlatformIO native unit tests
 .github/
   workflows/
-    build.yml      CI: build both environments on every push/PR
-    release.yml    CD: semantic-release on push to main
+    ci.yml         CI/CD: test → build → release (release job only on main)
 .releaserc.json    semantic-release config (conventional commits)
 ```
 
@@ -79,8 +78,9 @@ Commits must follow the [Conventional Commits](https://www.conventionalcommits.o
 | `feat!:` / `BREAKING CHANGE:` | major |
 | `chore:`, `docs:`, `refactor:` | no release |
 
-GitHub Actions runs on every push:
-1. **`build.yml`** — builds both `media-node` and `server-node` firmware, uploads `.bin` artifacts
-2. **`release.yml`** — runs only on `main`; invokes semantic-release to tag, generate changelog, and attach firmware binaries to the GitHub release
+GitHub Actions (`ci.yml`) runs on every push with three jobs:
+1. **`test`** — runs `pio test -e native` (host-side unit tests)
+2. **`build`** — builds both `media-node` and `server-node` firmware, uploads `.bin` artifacts
+3. **`release`** — runs only on `main` after `test` and `build` pass; downloads the artifacts from `build` and invokes semantic-release to tag, generate changelog, and attach firmware binaries to the GitHub release
 
 The `GITHUB_TOKEN` secret is automatically available in Actions; no extra secrets needed beyond WiFi/MQTT credentials (which never go into CI).
