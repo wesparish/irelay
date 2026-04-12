@@ -3,8 +3,6 @@
 [![CI](https://github.com/wesparish/esp8285-wireless-ir-extender/actions/workflows/ci.yml/badge.svg)](https://github.com/wesparish/esp8285-wireless-ir-extender/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wesparish/esp8285-wireless-ir-extender/badges/coverage.json)](https://github.com/wesparish/esp8285-wireless-ir-extender/actions/workflows/ci.yml)
 
-> **Note:** This project is untested — hardware has not been ordered or assembled yet. Expect rough edges.
-
 Relay IR remote commands over ESP-NOW between two rooms — no router, no broker, ~1ms latency.
 
 One **receiver-node** captures IR from your remote and forwards the signal wirelessly to the **emitter-node**, which re-transmits it to the target device. The result is a seamless remote control experience with the device physically relocated.
