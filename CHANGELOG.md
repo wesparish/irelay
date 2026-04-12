@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/wesparish/esp8285-wireless-ir-extender/compare/v1.0.0...v1.1.0) (2026-04-12)
+
+### Features
+
+* hybrid IR forwarding, status logging, receiver/emitter rename, and web UI ([#4](https://github.com/wesparish/esp8285-wireless-ir-extender/issues/4)) ([48d9285](https://github.com/wesparish/esp8285-wireless-ir-extender/commit/48d9285e96b71a3ed769327eea1651a9b1188cdd))
+
 ## [1.1.0-fix-ci-badges.1](https://github.com/wesparish/esp8285-wireless-ir-extender/compare/v1.0.0...v1.1.0-fix-ci-badges.1) (2026-04-12)
 
 ### Features
