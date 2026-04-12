@@ -1,3 +1,12 @@
+## [1.0.0-fix-ci-badges.2](https://github.com/wesparish/esp8285-wireless-ir-extender/compare/v1.0.0-fix-ci-badges.1...v1.0.0-fix-ci-badges.2) (2026-04-12)
+
+### Features
+
+* add uptime timestamps to web UI event log ([7f1efdf](https://github.com/wesparish/esp8285-wireless-ir-extender/commit/7f1efdfc5f98a7a5b9d8528790214340161c92fd))
+* add web UI with dark-mode captive portal for live diagnostics ([9907fa6](https://github.com/wesparish/esp8285-wireless-ir-extender/commit/9907fa633783fc2c5caabccf3caaba6f1c4c4cb2))
+* hybrid IR forwarding, status logging, and receiver/emitter rename ([e4fe504](https://github.com/wesparish/esp8285-wireless-ir-extender/commit/e4fe504a20e37c564bfd633835da3395b9ccffeb))
+* prefix log entries with device role label ([8d38bf4](https://github.com/wesparish/esp8285-wireless-ir-extender/commit/8d38bf488517874ae98ab89440d2ce84852a28c2))
+
 ## 1.0.0-fix-ci-badges.1 (2026-04-09)
 
 ### Features
