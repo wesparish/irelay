@@ -24,7 +24,7 @@ You need the MAC address of each ESP8285 before you can configure them to talk t
 ./bin/get-mac [port]
 ```
 
-The MAC address will print to the serial console and repeat every 5 seconds. Note both MACs — label them "media" and "server" to avoid mixing them up.
+The MAC address will print to the serial console and repeat every 5 seconds. Note both MACs — label them "receiver" and "emitter" to avoid mixing them up.
 
 If PlatformIO doesn't auto-detect the port, pass it explicitly:
 
@@ -53,13 +53,13 @@ cp include/config.h.example include/config.h
 Edit `include/config.h` and set:
 
 - `ESPNOW_CHANNEL` — any channel 1–13; both nodes must use the **same** value
-- `MEDIA_NODE_MAC` — the MAC of the media-node (from step 1)
-- `SERVER_NODE_MAC` — the MAC of the server-node (from step 1)
+- `RECEIVER_NODE_MAC` — the MAC of the receiver-node (from step 1)
+- `EMITTER_NODE_MAC` — the MAC of the emitter-node (from step 1)
 
 ```c
-#define ESPNOW_CHANNEL  1
-#define MEDIA_NODE_MAC  {0x5C, 0xCF, 0x7F, 0x12, 0x34, 0x56}
-#define SERVER_NODE_MAC {0x5C, 0xCF, 0x7F, 0xAB, 0xCD, 0xEF}
+#define ESPNOW_CHANNEL    1
+#define RECEIVER_NODE_MAC {0x5C, 0xCF, 0x7F, 0x12, 0x34, 0x56}
+#define EMITTER_NODE_MAC  {0x5C, 0xCF, 0x7F, 0xAB, 0xCD, 0xEF}
 ```
 
 The firmware picks the correct peer MAC at compile time based on which role is being built — no need to edit config between flashes.
@@ -67,8 +67,8 @@ The firmware picks the correct peer MAC at compile time based on which role is b
 ## Step 3 — Flash each node
 
 ```bash
-./bin/flash media-node [port]
-./bin/flash server-node [port]
+./bin/flash receiver-node [port]
+./bin/flash emitter-node [port]
 ```
 
 `bin/flash` validates that `config.h` exists and that the placeholder MAC has been replaced before flashing.
@@ -83,17 +83,17 @@ Open the serial monitor on either node:
 
 On startup you should see:
 ```
-media-node ready
+receiver-node ready
 ```
 or
 ```
-server-node ready
+emitter-node ready
 ```
 
-Point a remote at the media-node (IR receiver side) and press a button. The server-node will retransmit the IR signal immediately. Use an IR receiver or your AVR to confirm.
+Point a remote at the receiver-node (IR receiver side) and press a button. The emitter-node will retransmit the IR signal immediately. Use an IR receiver or your target device to confirm.
 
 ## Putting it in production
 
-- Mount the **media-node** near your projector or TV with the IR receiver facing the seating area
-- Mount the **server-node** in front of your AVR in the server room with the IR LED aimed at the AVR's receiver window
+- Mount the **receiver-node** near the remote's point of use with the IR receiver facing the seating area
+- Mount the **emitter-node** in front of the target device with the IR LED aimed at the device's receiver window
 - Both modules run off 5V and draw very little current — a small USB power supply works well

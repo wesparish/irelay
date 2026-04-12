@@ -4,89 +4,153 @@
 void setUp(void) {}
 void tearDown(void) {}
 
-// ── Struct layout ────────────────────────────────────────────────────────────
+// ── Protocol packet ──────────────────────────────────────────────────────────
 
-void test_sizeof_is_16(void) {
-    // uint32_t(4) + uint16_t(2) + 2-byte padding + uint64_t(8) = 16
-    // Both nodes must agree on this size; a change here breaks the wire format.
-    TEST_ASSERT_EQUAL(16u, sizeof(IrPayload));
+void test_protocol_pack_sets_type_tag(void) {
+    uint8_t buf[IR_PROTOCOL_PKT_SIZE];
+    ir_protocol_pack(buf, 3, 32, 0x20DF10EFul);
+    TEST_ASSERT_EQUAL_UINT8(IR_PKT_PROTOCOL, buf[0]);
 }
 
-void test_field_offsets(void) {
-    TEST_ASSERT_EQUAL(0u, offsetof(IrPayload, protocol));
-    TEST_ASSERT_EQUAL(4u, offsetof(IrPayload, bits));
-    TEST_ASSERT_EQUAL(8u, offsetof(IrPayload, value));
+void test_protocol_pkt_size_is_15(void) {
+    TEST_ASSERT_EQUAL(15u, IR_PROTOCOL_PKT_SIZE);
 }
 
-// ── ir_payload_decode: length guard ─────────────────────────────────────────
+void test_protocol_roundtrip_zeros(void) {
+    uint8_t buf[IR_PROTOCOL_PKT_SIZE];
+    ir_protocol_pack(buf, 0, 0, 0);
 
-void test_decode_rejects_empty(void) {
-    IrPayload out;
-    uint8_t buf[16] = {};
-    TEST_ASSERT_FALSE(ir_payload_decode(buf, 0, &out));
+    uint32_t protocol; uint16_t bits; uint64_t value;
+    TEST_ASSERT_TRUE(ir_protocol_unpack(buf, IR_PROTOCOL_PKT_SIZE, &protocol, &bits, &value));
+    TEST_ASSERT_EQUAL_UINT32(0, protocol);
+    TEST_ASSERT_EQUAL_UINT16(0, bits);
+    TEST_ASSERT_EQUAL_UINT64(0, value);
 }
 
-void test_decode_rejects_one_byte(void) {
-    IrPayload out;
-    uint8_t buf[16] = {};
-    TEST_ASSERT_FALSE(ir_payload_decode(buf, 1, &out));
+void test_protocol_roundtrip_max_values(void) {
+    uint8_t buf[IR_PROTOCOL_PKT_SIZE];
+    ir_protocol_pack(buf, UINT32_MAX, UINT16_MAX, UINT64_MAX);
+
+    uint32_t protocol; uint16_t bits; uint64_t value;
+    TEST_ASSERT_TRUE(ir_protocol_unpack(buf, IR_PROTOCOL_PKT_SIZE, &protocol, &bits, &value));
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, protocol);
+    TEST_ASSERT_EQUAL_UINT16(UINT16_MAX, bits);
+    TEST_ASSERT_EQUAL_UINT64(UINT64_MAX, value);
 }
 
-void test_decode_rejects_short(void) {
-    IrPayload out;
-    uint8_t buf[16] = {};
-    TEST_ASSERT_FALSE(ir_payload_decode(buf, sizeof(IrPayload) - 1, &out));
+void test_protocol_roundtrip_nec(void) {
+    uint8_t buf[IR_PROTOCOL_PKT_SIZE];
+    ir_protocol_pack(buf, 3, 32, 0x20DF10EFul);
+
+    uint32_t protocol; uint16_t bits; uint64_t value;
+    TEST_ASSERT_TRUE(ir_protocol_unpack(buf, IR_PROTOCOL_PKT_SIZE, &protocol, &bits, &value));
+    TEST_ASSERT_EQUAL_UINT32(3,            protocol);
+    TEST_ASSERT_EQUAL_UINT16(32,           bits);
+    TEST_ASSERT_EQUAL_UINT64(0x20DF10EFul, value);
 }
 
-void test_decode_rejects_long(void) {
-    IrPayload out;
-    uint8_t buf[32] = {};
-    TEST_ASSERT_FALSE(ir_payload_decode(buf, sizeof(IrPayload) + 1, &out));
+void test_protocol_unpack_rejects_wrong_type_tag(void) {
+    uint8_t buf[IR_PROTOCOL_PKT_SIZE] = {};
+    buf[0] = IR_PKT_RAW;
+    uint32_t protocol; uint16_t bits; uint64_t value;
+    TEST_ASSERT_FALSE(ir_protocol_unpack(buf, IR_PROTOCOL_PKT_SIZE, &protocol, &bits, &value));
 }
 
-void test_decode_accepts_exact(void) {
-    IrPayload out;
-    uint8_t buf[sizeof(IrPayload)] = {};
-    TEST_ASSERT_TRUE(ir_payload_decode(buf, sizeof(IrPayload), &out));
+void test_protocol_unpack_rejects_wrong_length(void) {
+    uint8_t buf[IR_PROTOCOL_PKT_SIZE + 1] = {};
+    buf[0] = IR_PKT_PROTOCOL;
+    uint32_t protocol; uint16_t bits; uint64_t value;
+    TEST_ASSERT_FALSE(ir_protocol_unpack(buf, IR_PROTOCOL_PKT_SIZE - 1, &protocol, &bits, &value));
+    TEST_ASSERT_FALSE(ir_protocol_unpack(buf, IR_PROTOCOL_PKT_SIZE + 1, &protocol, &bits, &value));
 }
 
-// ── Encode / decode roundtrip ────────────────────────────────────────────────
+// ── Raw packet ───────────────────────────────────────────────────────────────
 
-static void roundtrip(uint32_t protocol, uint16_t bits, uint64_t value) {
-    IrPayload in  = { protocol, bits, value };
-    IrPayload out = {};
-    uint8_t buf[sizeof(IrPayload)];
-
-    ir_payload_encode(&in, buf);
-    TEST_ASSERT_TRUE(ir_payload_decode(buf, sizeof(IrPayload), &out));
-    TEST_ASSERT_EQUAL_UINT32(protocol, out.protocol);
-    TEST_ASSERT_EQUAL_UINT16(bits,     out.bits);
-    TEST_ASSERT_EQUAL_UINT64(value,    out.value);
+void test_raw_pkt_size_formula(void) {
+    TEST_ASSERT_EQUAL(5u,   ir_raw_pkt_size(0));
+    TEST_ASSERT_EQUAL(7u,   ir_raw_pkt_size(1));
+    TEST_ASSERT_EQUAL(249u, ir_raw_pkt_size(IR_RAW_MAX_ENTRIES));
 }
 
-void test_roundtrip_zeros(void) {
-    roundtrip(0, 0, 0);
+void test_raw_max_fits_espnow(void) {
+    TEST_ASSERT_TRUE(IR_RAW_MAX_PKT_SIZE <= 250u);
 }
 
-void test_roundtrip_max_values(void) {
-    roundtrip(UINT32_MAX, UINT16_MAX, UINT64_MAX);
+void test_raw_roundtrip_single_entry(void) {
+    uint16_t timings_in[] = {9000};
+    uint8_t buf[IR_RAW_MAX_PKT_SIZE];
+    size_t len = ir_raw_pack(buf, 38000, timings_in, 1);
+
+    TEST_ASSERT_EQUAL(7u, len);
+    TEST_ASSERT_EQUAL_UINT8(IR_PKT_RAW, buf[0]);
+
+    uint16_t freq, count, timings_out[IR_RAW_MAX_ENTRIES];
+    TEST_ASSERT_TRUE(ir_raw_unpack(buf, (uint8_t)len, &freq, &count, timings_out));
+    TEST_ASSERT_EQUAL_UINT16(38000, freq);
+    TEST_ASSERT_EQUAL_UINT16(1,     count);
+    TEST_ASSERT_EQUAL_UINT16(9000,  timings_out[0]);
 }
 
-void test_roundtrip_nec_protocol(void) {
-    // NEC protocol = 3 in IRremoteESP8266; 32-bit code; realistic remote value
-    roundtrip(3, 32, 0x20DF10EFul);
+void test_raw_roundtrip_nec_like(void) {
+    uint16_t timings_in[] = {9000, 4500, 560, 1690, 560, 560, 560, 1690};
+    const uint16_t count = 8;
+    uint8_t buf[IR_RAW_MAX_PKT_SIZE];
+    size_t len = ir_raw_pack(buf, 38000, timings_in, count);
+
+    TEST_ASSERT_EQUAL(5u + count * 2u, len);
+
+    uint16_t freq, out_count, timings_out[IR_RAW_MAX_ENTRIES];
+    TEST_ASSERT_TRUE(ir_raw_unpack(buf, (uint8_t)len, &freq, &out_count, timings_out));
+    TEST_ASSERT_EQUAL_UINT16(38000, freq);
+    TEST_ASSERT_EQUAL_UINT16(count, out_count);
+    for (uint16_t i = 0; i < count; i++) {
+        TEST_ASSERT_EQUAL_UINT16(timings_in[i], timings_out[i]);
+    }
 }
 
-void test_roundtrip_sony_protocol(void) {
-    // SONY = 12 in IRremoteESP8266; 12-bit code
-    roundtrip(12, 12, 0xA90ul);
+void test_raw_roundtrip_max_entries(void) {
+    uint16_t timings_in[IR_RAW_MAX_ENTRIES];
+    for (uint16_t i = 0; i < IR_RAW_MAX_ENTRIES; i++) timings_in[i] = i * 10 + 100;
+
+    uint8_t buf[IR_RAW_MAX_PKT_SIZE];
+    size_t len = ir_raw_pack(buf, 38000, timings_in, IR_RAW_MAX_ENTRIES);
+
+    TEST_ASSERT_EQUAL(IR_RAW_MAX_PKT_SIZE, len);
+
+    uint16_t freq, count, timings_out[IR_RAW_MAX_ENTRIES];
+    TEST_ASSERT_TRUE(ir_raw_unpack(buf, (uint8_t)len, &freq, &count, timings_out));
+    TEST_ASSERT_EQUAL_UINT16(IR_RAW_MAX_ENTRIES, count);
+    for (uint16_t i = 0; i < IR_RAW_MAX_ENTRIES; i++) {
+        TEST_ASSERT_EQUAL_UINT16(timings_in[i], timings_out[i]);
+    }
 }
 
-void test_roundtrip_preserves_all_fields_independently(void) {
-    // Vary each field while holding others constant to check for cross-field clobber
-    roundtrip(0xDEADBEEFul, 0x0000u,  0x0000000000000000ull);
-    roundtrip(0x00000000ul, 0xFFFFu,  0x0000000000000000ull);
-    roundtrip(0x00000000ul, 0x0000u,  0xCAFEBABEDEADF00Dull);
+void test_raw_unpack_rejects_wrong_type_tag(void) {
+    uint8_t buf[IR_PROTOCOL_PKT_SIZE];
+    ir_protocol_pack(buf, 3, 32, 0x20DF10EFul);  // type = IR_PKT_PROTOCOL
+    uint16_t freq, count, timings_out[IR_RAW_MAX_ENTRIES];
+    TEST_ASSERT_FALSE(ir_raw_unpack(buf, IR_PROTOCOL_PKT_SIZE, &freq, &count, timings_out));
+}
+
+void test_raw_unpack_rejects_length_mismatch(void) {
+    // Pack count=2 (9 bytes), then claim it's 7 bytes (count=1 length)
+    uint16_t timings[] = {9000, 4500};
+    uint8_t buf[IR_RAW_MAX_PKT_SIZE];
+    ir_raw_pack(buf, 38000, timings, 2);
+    uint16_t freq, count, timings_out[IR_RAW_MAX_ENTRIES];
+    TEST_ASSERT_FALSE(ir_raw_unpack(buf, 7, &freq, &count, timings_out));
+}
+
+void test_raw_unpack_rejects_too_short(void) {
+    uint8_t buf[4] = {IR_PKT_RAW, 0, 0, 0};
+    uint16_t freq, count, timings_out[IR_RAW_MAX_ENTRIES];
+    TEST_ASSERT_FALSE(ir_raw_unpack(buf, 4, &freq, &count, timings_out));  // 4 < IR_RAW_HDR_SIZE
+}
+
+// ── Type tags are distinct ────────────────────────────────────────────────────
+
+void test_type_tags_differ(void) {
+    TEST_ASSERT_NOT_EQUAL(IR_PKT_PROTOCOL, IR_PKT_RAW);
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -94,20 +158,24 @@ void test_roundtrip_preserves_all_fields_independently(void) {
 int main(int argc, char** argv) {
     UNITY_BEGIN();
 
-    RUN_TEST(test_sizeof_is_16);
-    RUN_TEST(test_field_offsets);
+    RUN_TEST(test_protocol_pack_sets_type_tag);
+    RUN_TEST(test_protocol_pkt_size_is_15);
+    RUN_TEST(test_protocol_roundtrip_zeros);
+    RUN_TEST(test_protocol_roundtrip_max_values);
+    RUN_TEST(test_protocol_roundtrip_nec);
+    RUN_TEST(test_protocol_unpack_rejects_wrong_type_tag);
+    RUN_TEST(test_protocol_unpack_rejects_wrong_length);
 
-    RUN_TEST(test_decode_rejects_empty);
-    RUN_TEST(test_decode_rejects_one_byte);
-    RUN_TEST(test_decode_rejects_short);
-    RUN_TEST(test_decode_rejects_long);
-    RUN_TEST(test_decode_accepts_exact);
+    RUN_TEST(test_raw_pkt_size_formula);
+    RUN_TEST(test_raw_max_fits_espnow);
+    RUN_TEST(test_raw_roundtrip_single_entry);
+    RUN_TEST(test_raw_roundtrip_nec_like);
+    RUN_TEST(test_raw_roundtrip_max_entries);
+    RUN_TEST(test_raw_unpack_rejects_wrong_type_tag);
+    RUN_TEST(test_raw_unpack_rejects_length_mismatch);
+    RUN_TEST(test_raw_unpack_rejects_too_short);
 
-    RUN_TEST(test_roundtrip_zeros);
-    RUN_TEST(test_roundtrip_max_values);
-    RUN_TEST(test_roundtrip_nec_protocol);
-    RUN_TEST(test_roundtrip_sony_protocol);
-    RUN_TEST(test_roundtrip_preserves_all_fields_independently);
+    RUN_TEST(test_type_tags_differ);
 
     return UNITY_END();
 }

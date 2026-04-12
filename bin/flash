@@ -2,11 +2,11 @@
 # Build and flash firmware for a node role.
 #
 # Usage:
-#   ./bin/flash <media-node|server-node> [port]
+#   ./bin/flash <receiver-node|emitter-node> [port]
 #
 # Examples:
-#   ./bin/flash media-node
-#   ./bin/flash server-node /dev/ttyUSB0
+#   ./bin/flash receiver-node
+#   ./bin/flash emitter-node /dev/ttyUSB0
 
 set -euo pipefail
 
@@ -15,12 +15,12 @@ PORT=${2:-}
 
 if [[ -z "$ROLE" ]]; then
     echo "Error: node role required." >&2
-    echo "Usage: $0 <media-node|server-node> [port]" >&2
+    echo "Usage: $0 <receiver-node|emitter-node> [port]" >&2
     exit 1
 fi
 
-if [[ "$ROLE" != "media-node" && "$ROLE" != "server-node" ]]; then
-    echo "Error: role must be 'media-node' or 'server-node', got '$ROLE'" >&2
+if [[ "$ROLE" != "receiver-node" && "$ROLE" != "emitter-node" ]]; then
+    echo "Error: role must be 'receiver-node' or 'emitter-node', got '$ROLE'" >&2
     exit 1
 fi
 
@@ -35,7 +35,7 @@ fi
 # Warn if the example placeholder MAC is still in place
 if grep -q "0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF" "$CONFIG"; then
     echo "Error: $CONFIG still contains the placeholder MAC address." >&2
-    echo "Run ./bin/get-mac on each device, then set MEDIA_NODE_MAC and SERVER_NODE_MAC in $CONFIG." >&2
+    echo "Run ./bin/get-mac on each device, then set RECEIVER_NODE_MAC and EMITTER_NODE_MAC in $CONFIG." >&2
     exit 1
 fi
 

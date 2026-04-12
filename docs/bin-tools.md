@@ -35,18 +35,18 @@ Press **Ctrl+C** once you have the MAC. Repeat for the second module. You'll nee
 Builds and flashes the firmware for a named node role. Validates that `include/config.h` exists and that the placeholder MAC has been replaced before attempting to flash.
 
 ```
-Usage: ./bin/flash <media-node|server-node> [port]
+Usage: ./bin/flash <receiver-node|emitter-node> [port]
 ```
 
 | Argument | Description |
 |----------|-------------|
-| `media-node` \| `server-node` | Required. Which role to flash. |
+| `receiver-node` \| `emitter-node` | Required. Which role to flash. |
 | `port` | Optional. Serial port. Auto-detected if omitted. |
 
 **Example:**
 ```bash
-./bin/flash media-node
-./bin/flash server-node /dev/ttyUSB0
+./bin/flash receiver-node
+./bin/flash emitter-node /dev/ttyUSB0
 ```
 
 If `config.h` is missing or still contains the example placeholder MAC (`0xAA, 0xBB, ...`), the script exits with a clear error before touching the device.
