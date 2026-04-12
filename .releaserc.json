@@ -21,8 +21,8 @@
       "@semantic-release/github",
       {
         "assets": [
-          { "path": "dist/firmware-media-node.bin",  "label": "Firmware: media-node (media room)" },
-          { "path": "dist/firmware-server-node.bin", "label": "Firmware: server-node (server room)" }
+          { "path": "dist/firmware-receiver-node.bin", "label": "Firmware: receiver-node" },
+          { "path": "dist/firmware-emitter-node.bin", "label": "Firmware: emitter-node" }
         ]
       }
     ],

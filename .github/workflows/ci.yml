@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        env: [media-node, server-node]
+        env: [receiver-node, emitter-node]
     steps:
       - uses: actions/checkout@v4
 

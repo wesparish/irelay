@@ -44,7 +44,7 @@ FT232RNL cable           ESP8285 ESP-01M
 
 1. Connect IO0 to GND (add the jumper shown above)
 2. Power-cycle the module (disconnect and reconnect USB)
-3. Flash firmware: `./bin/flash <media-node|server-node> [port]`
+3. Flash firmware: `./bin/flash <receiver-node|emitter-node> [port]`
 4. Remove the IO0–GND jumper
 5. Power-cycle again — module boots normally
 
