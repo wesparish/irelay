@@ -67,6 +67,20 @@ test/          PlatformIO native unit tests
 .releaserc.json    semantic-release config (conventional commits)
 ```
 
+## Development Workflow
+
+Every change must go through a pull request — no direct commits to `main`.
+
+For each change:
+1. Create a new branch off the latest `main`: `git checkout main && git pull && git checkout -b <type>-<description>`
+2. Make changes and commit using [Conventional Commits](https://www.conventionalcommits.org/) format
+3. Before pushing, rebase onto the latest `main` to stay current: `git fetch origin && git rebase origin/main`
+4. Push and open a PR
+
+Branch naming follows the convention in the global `~/.claude/CLAUDE.md`:
+- `feat-<short-kebab-case-description>` — new features
+- `fix-<short-kebab-case-description>` — bug fixes
+
 ## Versioning & CI/CD
 
 Commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) spec — semantic-release uses this to determine version bumps and generate `CHANGELOG.md`.
