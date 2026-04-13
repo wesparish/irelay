@@ -55,12 +55,12 @@ static void printUptime() {
 
 // Open an AP on ESPNOW_CHANNEL (so ESP-NOW still works on the same channel),
 // start a captive DNS server, and start the HTTP server.
-// roleLabel appears in the AP SSID, e.g. "IR-Receiver-9868".
+// roleLabel appears in the AP SSID, e.g. "IRelay-Receiver-9868".
 static void startWebUI(const char* roleLabel) {
     uint8_t mac[6];
     wifi_get_macaddr(STATION_IF, mac);
     char ssid[32];
-    snprintf(ssid, sizeof(ssid), "IR-%s-%02X%02X", roleLabel, mac[4], mac[5]);
+    snprintf(ssid, sizeof(ssid), "IRelay-%s-%02X%02X", roleLabel, mac[4], mac[5]);
 
     WiFi.softAP(ssid, nullptr, ESPNOW_CHANNEL);
     IPAddress apIp = WiFi.softAPIP();
@@ -87,7 +87,7 @@ static void webSendHead(const char* role) {
         "<meta charset='UTF-8'>"
         "<meta name='viewport' content='width=device-width,initial-scale=1'>"
         "<meta http-equiv='refresh' content='5'>"
-        "<title>IR Extender</title>"
+        "<title>IRelay</title>"
         "<style>"
         ":root{"
           "--bg:#0d1117;--su:#161b22;--br:#30363d;"
@@ -144,7 +144,7 @@ static void webSendHead(const char* role) {
         ".le:last-child{color:var(--tx);border-bottom:none}"
         "footer{margin-top:18px;text-align:center;color:var(--dm);font-size:.72rem}"
         "</style></head><body>"
-        "<header><h1>IR Extender</h1><span class='badge'>"
+        "<header><h1>IRelay</h1><span class='badge'>"
     ));
     webServer.sendContent(role);
     webServer.sendContent(F(

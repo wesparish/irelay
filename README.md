@@ -1,4 +1,4 @@
-# esp8285-wireless-ir-extender
+# IRelay
 
 [![CI](https://github.com/wesparish/esp8285-wireless-ir-extender/actions/workflows/ci.yml/badge.svg)](https://github.com/wesparish/esp8285-wireless-ir-extender/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wesparish/esp8285-wireless-ir-extender/badges/coverage.json)](https://github.com/wesparish/esp8285-wireless-ir-extender/actions/workflows/ci.yml)
@@ -45,7 +45,7 @@ That's it. Point your remote at the receiver-node and the emitter-node will retr
 
 ## Web UI
 
-Each node hosts a built-in diagnostic web UI over Wi-Fi. After flashing, connect to the `IR-Receiver-XXXX` or `IR-Emitter-XXXX` access point (no password) and navigate to `http://192.168.4.1/`. The page auto-refreshes every 5 seconds and shows live counters and an event log.
+Each node hosts a built-in diagnostic web UI over Wi-Fi. After flashing, connect to the `IRelay-Receiver-XXXX` or `IRelay-Emitter-XXXX` access point (no password) and navigate to `http://192.168.4.1/`. The page auto-refreshes every 5 seconds and shows live counters and an event log.
 
 ![Web UI screenshot](docs/web-ui.png)
 

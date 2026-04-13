@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Wireless IR extender using two ESP8285 (ESP-01M) modules with integrated IR transceivers. One **receiver-node** sits in the media room near the projector and receives IR signals from the AVR remote. It relays them over ESP-NOW to the **emitter-node**, which re-transmits the IR signal in front of the AVR receiver in the server room. The result is a seamless remote control experience with the AVR physically relocated away from the media room.
+**IRelay** — wireless IR extender using two ESP8285 (ESP-01M) modules with integrated IR transceivers. One **receiver-node** sits in the media room near the projector and receives IR signals from the AVR remote. It relays them over ESP-NOW to the **emitter-node**, which re-transmits the IR signal in front of the AVR receiver in the server room. The result is a seamless remote control experience with the AVR physically relocated away from the media room.
 
 **Hardware**: [HiLetgo ESP8285 ESP-01M IR Transceiver Module](https://www.amazon.com/HiLetgo-Infrared-Transmitter-Receiver-Transceiver/dp/B09KGXNZ2Q/)
 **Enclosure candidate**: https://www.printables.com/model/810034-case-for-esp8285-esp-01m-ir-infrared-transmitter-m/files

@@ -61,7 +61,7 @@ These are hardwired on the ESP-01M IR transceiver module PCB — confirmed by th
 Each node runs a lightweight HTTP server (`ESP8266WebServer`) and a captive DNS server (`DNSServer`) alongside the main firmware loop. On boot:
 
 1. The radio is set to `WIFI_AP_STA` mode so both the ESP-NOW STA interface and the AP coexist on the same channel (`ESPNOW_CHANNEL`).
-2. An open access point is advertised as `IR-Receiver-XXXX` or `IR-Emitter-XXXX` (last 4 hex digits of the MAC).
+2. An open access point is advertised as `IRelay-Receiver-XXXX` or `IRelay-Emitter-XXXX` (last 4 hex digits of the MAC).
 3. Any DNS query is resolved to `192.168.4.1` (captive portal), and all non-`/` HTTP requests redirect there.
 4. `GET /` returns a self-contained dark-mode HTML page (auto-refresh every 5 s) with live metrics and a 30-entry event log ring buffer.
 
